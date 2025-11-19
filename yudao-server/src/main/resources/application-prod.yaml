@@ -9,6 +9,7 @@ spring:
       - com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
       - org.springframework.ai.vectorstore.qdrant.autoconfigure.QdrantVectorStoreAutoConfiguration
       - org.springframework.ai.vectorstore.milvus.autoconfigure.MilvusVectorStoreAutoConfiguration
+      # WeChat MP auto-configuration handled via wx.mp.configs below
   datasource:
     druid:
       web-stat-filter:
