@@ -1,0 +1,11 @@
+FROM mysql:8.0
+
+WORKDIR /app
+
+# Copiar scripts SQL
+COPY sql/mysql/ /app/sql/mysql/
+COPY init-db.sh /app/init-db.sh
+
+RUN chmod +x /app/init-db.sh
+
+CMD ["/app/init-db.sh"]

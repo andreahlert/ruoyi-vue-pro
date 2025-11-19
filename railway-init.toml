@@ -1,0 +1,8 @@
+# Railway service configuration for database initialization
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.init"
+
+[deploy]
+startCommand = "/app/init-db.sh"
+restartPolicyType = "NEVER"

@@ -1,0 +1,172 @@
+server:
+  port: ${PORT:48080}
+
+--- #################### 数据库相关配置 ####################
+
+spring:
+  autoconfigure:
+    exclude:
+      - com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
+      - org.springframework.ai.vectorstore.qdrant.autoconfigure.QdrantVectorStoreAutoConfiguration
+      - org.springframework.ai.vectorstore.milvus.autoconfigure.MilvusVectorStoreAutoConfiguration
+  datasource:
+    druid:
+      web-stat-filter:
+        enabled: true
+      stat-view-servlet:
+        enabled: true
+        allow:
+        url-pattern: /druid/*
+        login-username: admin
+        login-password: ${DRUID_PASSWORD:admin123}
+      filter:
+        stat:
+          enabled: true
+          log-slow-sql: true
+          slow-sql-millis: 100
+          merge-sql: true
+        wall:
+          config:
+            multi-statement-allow: true
+    dynamic:
+      druid:
+        initial-size: 5
+        min-idle: 10
+        max-active: 20
+        max-wait: 60000
+        time-between-eviction-runs-millis: 60000
+        min-evictable-idle-time-millis: 600000
+        max-evictable-idle-time-millis: 1800000
+        validation-query: SELECT 1
+        test-while-idle: true
+        test-on-borrow: false
+        test-on-return: false
+        pool-prepared-statements: true
+        max-pool-prepared-statement-per-connection-size: 20
+      primary: master
+      datasource:
+        master:
+          url: ${DATABASE_URL}
+          username: ${DATABASE_USER}
+          password: ${DATABASE_PASSWORD}
+
+  # Redis 配置
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT:6379}
+    database: ${REDIS_DATABASE:1}
+    password: ${REDIS_PASSWORD:}
+
+--- #################### 定时任务相关配置 ####################
+
+spring:
+  quartz:
+    auto-startup: true
+    scheduler-name: schedulerName
+    job-store-type: jdbc
+    wait-for-jobs-to-complete-on-shutdown: true
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: schedulerName
+            instanceId: AUTO
+          jobStore:
+            class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
+            isClustered: true
+            clusterCheckinInterval: 15000
+            misfireThreshold: 60000
+          threadPool:
+            threadCount: 25
+            threadPriority: 5
+            class: org.quartz.simpl.SimpleThreadPool
+    jdbc:
+      initialize-schema: NEVER
+
+--- #################### 监控相关配置 ####################
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: 'health,info,metrics'
+
+spring:
+  boot:
+    admin:
+      client:
+        url: http://localhost:${server.port}/${spring.boot.admin.context-path}
+        instance:
+          service-host-type: IP
+      context-path: /admin
+
+logging:
+  file:
+    name: /app/logs/${spring.application.name}.log
+  level:
+    root: INFO
+    cn.iocoder.yudao: INFO
+
+--- #################### 芋道相关配置 ####################
+
+yudao:
+  info:
+    version: 1.0.0
+    base-package: cn.iocoder.yudao
+  web:
+    admin-ui:
+      url: ${ADMIN_UI_URL:http://localhost:3000}
+  xss:
+    enable: false
+  security:
+    permit-all_urls:
+      - /admin-api/mp/open/**
+  api-encrypt:
+    enable: false
+  websocket:
+    enable: true
+    path: /infra/ws
+    sender-type: local
+  swagger:
+    title: 芋道快速开发平台
+    description: 提供管理后台、用户 App 的所有功能
+    version: ${yudao.info.version}
+    url: ${yudao.web.admin-ui.url}
+    email: xingyu4j@vip.qq.com
+    license: MIT
+    license-url: https://gitee.com/zhijiantianya/ruoyi-vue-pro/blob/master/LICENSE
+  codegen:
+    base-package: ${yudao.info.base-package}
+    db-schemas: ${spring.datasource.dynamic.datasource.master.name}
+    front-type: 20
+    vo-type: 10
+    delete-batch-enable: true
+    unit-test-enable: false
+  tenant:
+    enable: true
+    ignore-urls:
+      - /jmreport/*
+    ignore-visit-urls:
+      - /admin-api/system/user/profile/**
+      - /admin-api/system/auth/**
+    ignore-tables:
+    ignore-caches:
+      - user_role_ids
+      - permission_menu_ids
+      - oauth_client
+      - notify_template
+      - mail_account
+      - mail_template
+      - sms_template
+      - iot:device
+      - iot:thing_model_list
+  sms-code:
+    expire-times: 10m
+    send-frequency: 1m
+    send-maximum-quantity-per-day: 10
+    begin-code: 9999
+    end-code: 9999
+  demo: false
+
+debug: false
