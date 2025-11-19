@@ -57,6 +57,16 @@ spring:
     database: ${REDIS_DATABASE:1}
     password: ${REDIS_PASSWORD:}
 
+--- #################### 微信公众号相关配置 ####################
+
+wx:
+  mp:
+    configs:
+      - appId: ${WX_MP_APP_ID:dummy}
+        secret: ${WX_MP_SECRET:dummy_secret_placeholder_value}
+        token: ${WX_MP_TOKEN:dummy_token}
+        aesKey: ${WX_MP_AES_KEY:}
+
 --- #################### 定时任务相关配置 ####################
 
 spring:
